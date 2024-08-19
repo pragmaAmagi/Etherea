@@ -10,7 +10,7 @@
 #LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-Purpose:
+# Purpose:
 The game is designed to combine:
 1.	Evolutionary game theory related to group foraging to reduce greed
 2.	Evolutionary stable strategies to encourage positive betting behavior
@@ -19,7 +19,7 @@ The game is designed to combine:
 5.	Time constraints agreed upon by the two core players
 The game aims to benefit everyone while maintaining unpredictability and incomplete information.
 
-Mathematical Proof for the Game:
+# Mathematical Proof for the Game:
 
 π_i(x_i, X_{-i}) = μ(X)/n - c_i(x_i) + (1-exp(-α * ∑_i x_i)) * x_i * ∑_{j≠i} (x_j / σ_j^2) / (∑_{k≠i} 1/σ_k^2)
 Var[π_i] = σ^2(X)/n^2
