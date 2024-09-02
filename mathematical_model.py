@@ -11,12 +11,12 @@
 import numpy as np
 
 class GameParameters:
-    def __init__(self, n_players=5, n_base_players=2, alpha=0.1, beta=0.05, observer_multiplier=1.3, greed_factor=0.2, group_factor=0.3, community_factor=1.0, stability_factor=0.3, max_bet=80, base_payoff=20, layer1_bonus=10):
+    def __init__(self, n_players=5, n_base_players=2, alpha=0.1, beta=0.05, observer_multiplier=1.5, greed_factor=0.2, group_factor=0.3, community_factor=1.0, stability_factor=0.3, max_bet=80, base_payoff=20, layer1_bonus=10):
         self.n_players = n_players
         self.n_base_players = n_base_players
         self.alpha = alpha
         self.beta = beta
-        self.observer_multiplier = observer_multiplier
+        self.observer_multiplier = observer_multiplier  # Increased from 1.3 to 1.5
         self.greed_factor = greed_factor
         self.group_factor = group_factor
         self.community_factor = community_factor
@@ -36,6 +36,7 @@ class Player:
         self.prediction = None
         self.reputation = 0.5
         self.cumulative_profit = 0
+        self.is_observer = False
 
     def place_bet(self, amount):
         self.bet = min(amount, self.game.max_bet)
@@ -60,24 +61,25 @@ class Game:
     def __init__(self, params, time_constraint):
         self.params = params
         self.time_constraint = time_constraint
-        self.layer1_players = self._initialize_players(2)
-        self.layer2_players = self._initialize_players(3)
-        self.roles = ['bank', 'odd_setter', 'validator']
+        self.layer1_players = self._initialize_players(2, 'base')
+        self.layer2_players = self._initialize_players(3, 'observer')
+        self.layer3_players = self._initialize_players(0, 'bank')
         self.max_bet = params.max_bet
         self.community_score = 50
+        self.roles = ['bank', 'odd_setter', 'validator']  # Restore this line
 
-    def _initialize_players(self, num_players):
+    def _initialize_players(self, num_players, role):
         players = []
         for i in range(num_players):
             sigma = np.random.uniform(0.5, 1.5)
-            player = Player(i, 'base' if i < self.params.n_base_players else 'observer', sigma)
+            player = Player(i, role, sigma)
             player.game = self
             players.append(player)
         return players
 
     def run_game(self):
         layer1_bets = [player.place_bet(np.random.uniform(1, self.max_bet)) for player in self.layer1_players]
-        layer1_outcome = np.random.choice([True, False])  # 50/50 outcome for layer 1
+        layer1_outcome = np.random.choice([True, False])
 
         layer2_bets = []
         layer2_predictions = []
@@ -85,7 +87,9 @@ class Game:
             player.make_prediction(np.random.choice([True, False]))
             layer2_predictions.append(player.prediction)
             layer2_bets.append(player.place_bet(np.random.uniform(1, self.max_bet)))
+            player.is_observer = True  # Ensure all layer 2 players are marked as observers
 
+        # Assign roles, but keep all layer 2 players as observers for payout purposes
         np.random.shuffle(self.roles)
         for player, role in zip(self.layer2_players, self.roles):
             player.role = role
@@ -106,29 +110,45 @@ class Game:
         return payoffs
 
     def _calculate_layer2_payoffs(self, bets, layer1_outcome, predictions):
-        total_bet = sum(bets)
         payoffs = []
+        disagreement = len(set(predictions)) > 1
+        avg_bet = np.mean(bets)
+
         for player, bet, prediction in zip(self.layer2_players, bets, predictions):
+            if prediction is None:
+                prediction = np.random.choice([True, False])
+            
+            # Base payoff calculation
             if layer1_outcome == prediction:
-                payoff = bet * (total_bet / bet - 1)
+                payoff = bet * self.params.observer_multiplier # Reward for correct prediction
             else:
-                payoff = -bet
-            
-            if player.role == 'bank':
-                accuracy = 1 - abs(total_bet - sum(predictions)) / total_bet
-                payoff *= 1.2 * accuracy
-            elif player.role == 'odd_setter':
-                actual_odds = sum(predictions) / len(predictions)
-                accuracy = 1 - abs(bet/total_bet - actual_odds)
-                payoff *= 1.1 * accuracy
-            elif player.role == 'validator':
-                accuracy = 1 if layer1_outcome == prediction else 0
-                payoff *= 1.15 * accuracy
-            
+                payoff = -bet  # Penalty for incorrect prediction
+
+            # Apply community alignment penalty
+            bet_deviation = abs(bet - avg_bet) / self.max_bet
+            community_penalty = bet_deviation * bet * 0.5  # Adjust the 0.5 factor as needed
+            payoff -= community_penalty
+
+            # Role-based bonuses (only if there's disagreement)
+            if disagreement:
+                if player.role == 'bank':
+                    payoff += 20
+                elif player.role == 'odd_setter':
+                    payoff += 15
+                elif player.role == 'validator':
+                    payoff += 10
+
+            payoff = max(payoff, 0)  # Ensure non-negative payoff
             payoffs.append(payoff)
+
+            print(f"Player {player.id}: is_observer={player.is_observer}, prediction={prediction}, outcome={layer1_outcome}, payoff={payoff}")
+
         return payoffs
 
     def _pi_i(self, x_i, X, i):
+        """
+        Calculate the individual payoff for a player based on their bet and other game parameters.
+        """
         mean_x = np.mean(X)
         sum_x_over_sigma_squared = sum(x_j / player.sigma**2 for x_j, player in zip(X, self.layer1_players + self.layer2_players))
         sum_inverse_sigma_squared = sum(1 / player.sigma**2 for player in self.layer1_players + self.layer2_players)
@@ -172,7 +192,15 @@ class Game:
 
     def update_community_score(self, X):
         avg_bet = np.mean(X)
-        self.community_score += 3 if avg_bet <= self.max_bet/2 else -2  # More aggressive community score update
+        if avg_bet <= self.max_bet / 2:
+            self.community_score += 1  # Less aggressive increase
+        else:
+            self.community_score -= 1  # Less aggressive decrease
+        
+        # Consider alignment with community average
+        alignment = 1 - np.mean([abs(bet - avg_bet) for bet in X]) / self.max_bet
+        self.community_score += alignment * 2  # Reward alignment
+        
         self.community_score = max(0, min(100, self.community_score))
 
     def update_reputations(self, bets, payoffs):
