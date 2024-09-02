@@ -1,4 +1,4 @@
-# Synergy Strategy Algorithm
+# Synergy Strategy
 
 ## Project Overview
 The Synergy Strategy Algorithm is a sophisticated community betting game that simulates complex interactions between players, incorporating elements of game theory, behavioral economics, and multi-agent systems. This project aims to model and analyze strategic decision-making in a community-driven betting environment. 
