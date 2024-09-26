@@ -1,7 +1,7 @@
-# Synergy Strategy
+# Etherea
 
 ## Project Overview
-The Synergy Strategy Algorithm is a sophisticated community betting game that simulates complex interactions between players, incorporating elements of game theory, behavioral economics, and multi-agent systems. This project aims to model and analyze strategic decision-making in a community-driven betting environment. 
+Etherea is a sophisticated community betting game that simulates complex interactions between players, incorporating elements of game theory, behavioral economics, and multi-agent systems. This project aims to model and analyze strategic decision-making in a community-driven betting environment. 
 
 ## Recent Updates (September 2024)
 - Implemented a web-based interface using Flask for easier interaction with the game
@@ -114,16 +114,10 @@ Incentives: To align incentives, the spectators could share in the profits (or l
 ## Contributing
 We welcome contributions to the Synergy Strategy Algorithm! Please read our contributing guidelines before submitting pull requests.
 
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-- Thanks to all contributors who have helped shape and improve this project
-- Special thanks to the open-source community for providing invaluable tools and libraries
-
 ## Contact
 For any queries or suggestions, please open an issue on this repository or contact the project maintainers directly.
-# Mathematical Proof for the Game:
+
+PATENT PENDING: One or more aspects of this software are the subject of a patent application filed with the United States Patent and Trademark Office. All rights reserved. ACME Media Limited, 2024
 
 #Copyright (c) [2024] ACME Media Limited
 #All rights reserved.
