@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Betting Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        button {
+            margin: 10px 0;
+        }
+
+        #gameState {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Etherea</h1>
+    <button onclick="getGameState()">Get Game State</button>
+    <button onclick="proposeAction()">Propose Action</button>
+    <button onclick="runGame()">Run Game</button>
+    <button onclick="resetGame()">Reset Game</button>
+    <div id="gameState"></div>
+
+    <script>
+        const API_URL = 'http://localhost:5000';  // Adjust if your backend is on a different port
+
+        async function getGameState() {
+            const response = await fetch(`${API_URL}/game_state`);
+            const data = await response.json();
+            document.getElementById('gameState').innerHTML = `
+                <h2>Game State</h2>
+                <p>Community Score: ${data.communityScore}</p>
+                <p>Current Round: ${data.currentRound}</p>
+                <p>Active Players: ${data.activePlayers}</p>
+                <p>Time Remaining: ${data.timeRemaining}</p>
+            `;
+        }
+
+        async function proposeAction() {
+            const action = { player_index: 0, amount: 10 };  // Example action
+            const response = await fetch(`${API_URL}/propose_action`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(action)
+            });
+            const data = await response.json();
+            alert(data.message || data.error);
+        }
+
+        async function runGame() {
+            const response = await fetch(`${API_URL}/run_game`, { method: 'POST' });
+            const data = await response.json();
+            getGameState();  // Refresh game state after running
+        }
+
+        async function resetGame() {
+            const response = await fetch(`${API_URL}/reset_game`, { method: 'POST' });
+            const data = await response.json();
+            alert(data.message);
+            getGameState();  // Refresh game state after resetting
+        }
+    </script>
+</body>
+
+</html>

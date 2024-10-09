@@ -1,0 +1,88 @@
+/* General Styles */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: #171a13;
+    /* Accent 4 */
+    color: #200c03;
+    /* Accent 3 */
+    margin: 0;
+    padding: 0;
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 700;
+    margin: 0 0 10px;
+    color: #1d3c3f;
+    /* Main 2 */
+}
+
+p {
+    line-height: 1.6;
+    margin: 0 0 10px;
+    color: #363533;
+    /* Accent */
+}
+
+/* Layout */
+.container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 20px;
+    padding: 20px;
+    background-color: #e7cc7f;
+    /* Accent 2 */
+}
+
+.sidebar {
+    background-color: #dca956;
+    /* Main */
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.main-content {
+    background-color: #7b3d16;
+    /* Accent 5 */
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons */
+button {
+    background-color: #1b5360;
+    /* Accent 6 */
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #1d3c3f;
+    /* Main 2 */
+}
+
+/* Inputs */
+input,
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+/* Images */
+img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
